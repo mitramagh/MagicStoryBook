@@ -5,12 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.SecurityFilterChain;
-
-
 
 @Configuration
 @EnableWebSecurity
@@ -21,21 +19,24 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/", "/login").permitAll()
+                                .requestMatchers("/", "/error", "/webjars/**").permitAll()
+                                .requestMatchers("/api/**").authenticated()  // Secure API endpoints
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2Login ->
                         oauth2Login
-                                .loginPage("/login")
+                                .defaultSuccessUrl("/home", true)
                                 .userInfoEndpoint(userInfoEndpoint ->
-                                        userInfoEndpoint.userService(customOAuth2UserService())
+                                        userInfoEndpoint.userService(oauth2UserService())
                                 )
-                );
+                )
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));  // Disable CSRF protection for API endpoints
+
         return http.build();
     }
 
     @Bean
-    public OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService() {
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
         return new CustomOAuth2UserService();
     }
 }

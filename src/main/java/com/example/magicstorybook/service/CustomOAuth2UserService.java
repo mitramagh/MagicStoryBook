@@ -1,28 +1,38 @@
 package com.example.magicstorybook.service;
 
-
+import com.example.magicstorybook.model.CustomOAuth2User;
+import com.example.magicstorybook.model.User;
+import com.example.magicstorybook.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import java.util.Map;
-import com.example.magicstorybook.model.CustomOAuth2User;
 
-//@Service
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+@Service
+public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) {
+        DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
         // Extract user information from the OAuth2 response
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        String firstName = (String) attributes.get("given_name");
-        String lastName = (String) attributes.get("family_name");
-        String email = (String) attributes.get("email");
+        String email = oAuth2User.getAttribute("email");
+        String firstName = oAuth2User.getAttribute("given_name");
+        String lastName = oAuth2User.getAttribute("family_name");
 
-        // Create and return a custom user principal with the extracted information
-        return new CustomOAuth2User(oAuth2User.getAuthorities(), attributes, "sub", firstName, lastName, email);
+        // Save or update user in the database
+        User user = userRepository.findUserByEmail(email)
+                .orElseGet(() -> new User(firstName, lastName, email));
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        userRepository.save(user);
+
+        return new CustomOAuth2User(oAuth2User);
     }
 }
