@@ -26,7 +26,7 @@ public class StoryController {
     @GetMapping
     public List<Story> getStoriesByUser(@AuthenticationPrincipal OAuth2User principal) {
         String email = principal.getAttribute("email");
-        User user = userService.findUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         return storyService.getStoriesByUser(user);
     }
 
@@ -40,7 +40,7 @@ public class StoryController {
     @PostMapping
     public Story createStory(@AuthenticationPrincipal OAuth2User principal, @RequestBody Map<String, String> storyDetails) {
         String email = principal.getAttribute("email");
-        User user = userService.findUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         Story story = new Story();
         story.setUser(user);
