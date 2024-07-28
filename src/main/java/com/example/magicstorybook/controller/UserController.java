@@ -7,6 +7,7 @@ import com.example.magicstorybook.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,18 @@ public class UserController {
     @Autowired
     private StoryRepository storyRepository;
     private static final Logger logger = Logger.getLogger(UserController.class.getName());
+
+
+//    @GetMapping("/profile")
+//    public OidcUser getCurrentUser(@AuthenticationPrincipal OidcUser principal) {
+//        if (principal != null) {
+//            System.out.println("User is authenticated: " + principal.getEmail());
+//        } else {
+//            System.out.println("User is not authenticated.");
+//        }
+//        return principal;
+
+
     @GetMapping("/profile")
     public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal OAuth2User oAuth2User) {
         if (oAuth2User == null) {
