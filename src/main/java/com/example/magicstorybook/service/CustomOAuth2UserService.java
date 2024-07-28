@@ -1,8 +1,9 @@
 package com.example.magicstorybook.service;
 
-import com.example.magicstorybook.model.CustomOAuth2User;
 import com.example.magicstorybook.model.User;
 import com.example.magicstorybook.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -15,11 +16,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Autowired
     private UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(CustomOAuth2UserService.class);
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
+
+        logger.debug("OAuth2 User Attributes: {}", oAuth2User.getAttributes());
+
 
         // Extract user information from the OAuth2 response
         String email = oAuth2User.getAttribute("email");
@@ -33,6 +38,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         user.setLastName(lastName);
         userRepository.save(user);
 
-        return new CustomOAuth2User(oAuth2User);
+        return oAuth2User;
     }
 }
