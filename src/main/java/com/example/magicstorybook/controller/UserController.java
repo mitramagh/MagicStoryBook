@@ -32,7 +32,13 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
         String email = oAuth2User.getAttribute("email");
+        logger.info("Extracted email: " + email);
         Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            logger.info("User found: " + user.get());
+        } else {
+            logger.warning("User not found for email: " + email);
+        }
         return user.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

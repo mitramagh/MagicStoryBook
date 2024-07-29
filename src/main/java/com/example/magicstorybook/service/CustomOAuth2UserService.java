@@ -1,5 +1,6 @@
 package com.example.magicstorybook.service;
 
+import com.example.magicstorybook.model.CustomOAuth2User;
 import com.example.magicstorybook.model.User;
 import com.example.magicstorybook.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -45,27 +46,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         logger.debug("Extracted first name: {}", firstName);
         logger.debug("Extracted last name: {}", lastName);
 
-        // Find or create user
-        Optional<User> optionalUser = userService.findByEmail(email);
-        User user;
-        if (optionalUser.isPresent()) {
-            user = optionalUser.get();
-            logger.debug("User found in database: {}", user);
-        } else {
-            user = new User();
-            user.setEmail(email);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            logger.debug("User not found, creating new user: {}", user);
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User newUser = new User(firstName, lastName, email);
+                    logger.debug("User not found, creating new user: {}", newUser);
+                    return newUser;
+                });
 
         // Update user information
         user.setFirstName(firstName);
         user.setLastName(lastName);
-
         User savedUser = userRepository.save(user);
         logger.debug("User after save: {}", savedUser);
 
-        return oAuth2User;
+        return new CustomOAuth2User(oAuth2User);
     }
 }
