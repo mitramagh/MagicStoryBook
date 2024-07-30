@@ -57,6 +57,24 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
+    //update name of the user by id
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isPresent()) {
+            User updatedUser = existingUser.get();
+            updatedUser.setFirstName(user.getFirstName());
+            updatedUser.setLastName(user.getLastName());
+            userRepository.save(updatedUser);
+            return ResponseEntity.ok(updatedUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
     @Transactional
     @PostMapping("/story")
     public ResponseEntity<Story> createStory(@AuthenticationPrincipal OAuth2User oAuth2User, @RequestBody Story story) {
