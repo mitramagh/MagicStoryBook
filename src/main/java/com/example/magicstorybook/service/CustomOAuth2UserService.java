@@ -61,4 +61,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         return new CustomOAuth2User(oAuth2User);
     }
+
+    //register new user
+    public User registerNewUser(OAuth2User oAuth2User) {
+        String email = oAuth2User.getAttribute("email");
+        String firstName = oAuth2User.getAttribute("given_name");
+        String lastName = oAuth2User.getAttribute("family_name");
+
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        if (existingUser.isPresent()) {
+            return existingUser.get();
+        }
+
+        User newUser = new User(firstName, lastName, email);
+        userRepository.save(newUser);
+        return newUser;
+    }
 }

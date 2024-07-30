@@ -1,10 +1,10 @@
 package com.example.magicstorybook.controller;
 
-
 import com.example.magicstorybook.model.Story;
 import com.example.magicstorybook.model.User;
-import com.example.magicstorybook.service.StoryService;
-import com.example.magicstorybook.service.UserService;
+import com.example.magicstorybook.repository.StoryRepository;
+import com.example.magicstorybook.repository.UserRepository;
+import com.example.magicstorybook.service.OpenAIService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,53 +12,81 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/stories")
 public class StoryController {
-    @Autowired
-    private StoryService storyService;
 
     @Autowired
-    private UserService userService;
+    private OpenAIService openAIService;
 
-    @GetMapping
-    public List<Story> getStoriesByUser(@AuthenticationPrincipal OAuth2User principal) {
-        String email = principal.getAttribute("email");
-        User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        return storyService.getStoriesByUser(user);
+    @Autowired
+    private StoryRepository storyRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @PostMapping("/create")
+    public ResponseEntity<String> createStory(
+            @AuthenticationPrincipal OAuth2User oAuth2User,
+            @RequestParam String genre,
+            @RequestParam String setting,
+            @RequestParam List<String> characters,
+            @RequestParam String title,
+            @RequestParam String ageRange,
+            @RequestParam String wordRange) {
+
+        if (oAuth2User == null) {
+            return ResponseEntity.badRequest().body("User is not authenticated");
+        }
+
+        String email = oAuth2User.getAttribute("email");
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+        User user = userOptional.get();
+
+        List<Story> existingStories = storyRepository.findByUserAndGenreAndSettingAndTitleAndAgeRangeAndWordRange(
+                user, genre, setting, title, ageRange, wordRange);
+
+        for (Story existingStory : existingStories) {
+            if (existingStory.getCharacters().containsAll(characters) && characters.containsAll(existingStory.getCharacters())) {
+                return ResponseEntity.status(409).body("A story with the same parameters and characters already exists. Please make another selection.");
+            }
+        }
+
+        String prompt = String.format("hi, I'm a %s kid, create a story for me in %s genre, with a %s setting, and with characters %s, titled %s, in %s words",
+                ageRange, genre, setting, String.join(", ", characters), title, wordRange);
+
+        String storyContent = openAIService.createStory(prompt);
+
+        // Example to get image byte array
+        // You need to adjust this part to actually call the OpenAI API to generate an image
+        byte[] imageBytes = openAIService.createImage(prompt);
+
+        Story newStory = new Story(user, genre, setting, characters, title, storyContent, imageBytes, ageRange, wordRange);
+        storyRepository.save(newStory);
+
+        return ResponseEntity.ok(storyContent);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Story> getStoryById(@PathVariable Long id) {
-        return storyService.getStoryById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    @GetMapping("/my-stories")
+    public ResponseEntity<List<Story>> getMyStories(@AuthenticationPrincipal OAuth2User oAuth2User) {
+        if (oAuth2User == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
 
-    @PostMapping
-    public Story createStory(@AuthenticationPrincipal OAuth2User principal, @RequestBody Map<String, String> storyDetails) {
-        String email = principal.getAttribute("email");
-        User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        String email = oAuth2User.getAttribute("email");
 
-        Story story = new Story();
-        story.setUser(user);
-        story.setGenre(storyDetails.get("genre"));
-        story.setSetting(storyDetails.get("setting"));
-        story.setCharacter(storyDetails.get("character"));
-        story.setTitle(storyDetails.get("title"));
-        story.setContent(storyDetails.get("content"));
-        story.setAgeRange(storyDetails.get("ageRange"));
-        story.setWordRange(storyDetails.get("wordRange"));
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        User user = userOptional.get();
 
-        return storyService.saveStory(story);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStory(@PathVariable Long id) {
-        storyService.deleteStory(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(user.getStories());
     }
 }
-
