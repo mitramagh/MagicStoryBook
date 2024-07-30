@@ -2,10 +2,13 @@ package com.example.magicstorybook.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "stories")
 public class Story {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,32 +17,48 @@ public class Story {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "genre")
     private String genre;
-
-    @Column(name = "setting")
     private String setting;
-
-    @Column(name = "character")
-    private String character;
-
-    @Column(name = "title")
     private String title;
 
-    @Column(name = "content")
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "age_range")
     private String ageRange;
 
+    @Lob
+    private byte[] image;
     @Column(name = "word_range")
     private String wordRange;
 
-    @Column(name = "creation_date", updatable = false)
-    private LocalDateTime creationDate = LocalDateTime.now();
+    @Column(name = "creation_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime creationDate;
 
+    @ElementCollection
+    @CollectionTable(name = "story_characters", joinColumns = @JoinColumn(name = "story_id"))
+    @Column(name = "character")
+    private List<String> characters = new ArrayList<>();
 
-// Getters and Setters
+    // Constructors, getters, and setters
+
+    public Story() {
+    }
+
+    public Story(User user, String genre, String setting, List<String> characters, String title, String content, byte[] image, String ageRange, String wordRange) {
+        this.user = user;
+        this.genre = genre;
+        this.setting = setting;
+        this.characters = characters;
+        this.title = title;
+        this.content = content;
+        this.image = image;
+        this.ageRange = ageRange;
+        this.wordRange = wordRange;
+        this.creationDate = LocalDateTime.now();
+    }
+
+    // Getters and setters...
     public Long getId() {
         return id;
     }
@@ -72,12 +91,12 @@ public class Story {
         this.setting = setting;
     }
 
-    public String getCharacter() {
-        return character;
+    public List<String> getCharacters() {
+        return characters;
     }
 
-    public void setCharacter(String character) {
-        this.character = character;
+    public void setCharacters(List<String> characters) {
+        this.characters = characters;
     }
 
     public String getTitle() {
@@ -96,6 +115,13 @@ public class Story {
         this.content = content;
     }
 
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
     public String getAgeRange() {
         return ageRange;
     }
@@ -119,5 +145,4 @@ public class Story {
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
-
 }

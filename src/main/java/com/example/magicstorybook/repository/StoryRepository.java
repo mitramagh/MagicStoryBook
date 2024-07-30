@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface StoryRepository extends JpaRepository<Story, Long> {
     List<Story> findByUser(User user);
+
+    List<Story> findByUserAndGenreAndSettingAndTitleAndAgeRangeAndWordRange(
+            User user, String genre, String setting, String title, String ageRange, String wordRange);
 }

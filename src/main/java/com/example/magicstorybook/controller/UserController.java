@@ -6,11 +6,13 @@ import com.example.magicstorybook.repository.StoryRepository;
 import com.example.magicstorybook.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -23,6 +25,10 @@ public class UserController {
     @Autowired
     private StoryRepository storyRepository;
     private static final Logger logger = Logger.getLogger(UserController.class.getName());
+
+
+
+
 
     @Transactional
     @GetMapping("/profile")
@@ -50,6 +56,24 @@ public class UserController {
         return user.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+
+    //update name of the user by id
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isPresent()) {
+            User updatedUser = existingUser.get();
+            updatedUser.setFirstName(user.getFirstName());
+            updatedUser.setLastName(user.getLastName());
+            userRepository.save(updatedUser);
+            return ResponseEntity.ok(updatedUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
 
     @Transactional
     @PostMapping("/story")
