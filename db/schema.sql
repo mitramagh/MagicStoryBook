@@ -12,7 +12,7 @@ CREATE TABLE stories (
     setting VARCHAR(50),
     title VARCHAR(100),
     content TEXT,
-    image BYTEA,
+    image Text,
     age_range VARCHAR(10),
     word_range VARCHAR(10),
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP

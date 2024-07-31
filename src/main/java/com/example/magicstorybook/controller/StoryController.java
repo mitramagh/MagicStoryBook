@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,8 +67,9 @@ public class StoryController {
         // Example to get image byte array
         // You need to adjust this part to actually call the OpenAI API to generate an image
         byte[] imageBytes = openAIService.createImage(prompt);
+        String image = Base64.getEncoder().encodeToString(imageBytes);
 
-        Story newStory = new Story(user, genre, setting, characters, title, storyContent, imageBytes, ageRange, wordRange);
+        Story newStory = new Story(user, genre, setting, characters, title, storyContent, image, ageRange, wordRange);
         storyRepository.save(newStory);
 
         return ResponseEntity.ok(storyContent);
