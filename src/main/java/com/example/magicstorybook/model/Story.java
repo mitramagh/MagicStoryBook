@@ -27,8 +27,9 @@ public class Story {
     @Column(name = "age_range")
     private String ageRange;
 
-    @Lob
-    private byte[] image;
+//    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String image;
     @Column(name = "word_range")
     private String wordRange;
 
@@ -45,7 +46,7 @@ public class Story {
     public Story() {
     }
 
-    public Story(User user, String genre, String setting, List<String> characters, String title, String content, byte[] image, String ageRange, String wordRange) {
+    public Story(User user, String genre, String setting, List<String> characters, String title, String content, String image, String ageRange, String wordRange) {
         this.user = user;
         this.genre = genre;
         this.setting = setting;
@@ -115,11 +116,11 @@ public class Story {
         this.content = content;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
     public String getAgeRange() {
