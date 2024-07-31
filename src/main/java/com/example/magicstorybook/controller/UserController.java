@@ -74,17 +74,6 @@ public class UserController {
     }
 
 
-
-    @Transactional
-    @PostMapping("/story")
-    public ResponseEntity<Story> createStory(@AuthenticationPrincipal OAuth2User oAuth2User, @RequestBody Story story) {
-        String email = oAuth2User.getAttribute("email");
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        story.setUser(user);
-        Story savedStory = storyRepository.save(story);
-        return ResponseEntity.ok(savedStory);
-    }
     @GetMapping("/stories")
     public ResponseEntity<List<Story>> getStories(@AuthenticationPrincipal OAuth2User oAuth2User) {
         String email = oAuth2User.getAttribute("email");
