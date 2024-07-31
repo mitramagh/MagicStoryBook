@@ -3,15 +3,10 @@ package com.example.magicstorybook.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
+import org.springframework.http.*;
+import java.util.Collections;
 import java.util.Map;
+import java.util.List;
 
 @Service
 public class OpenAIService {
@@ -19,59 +14,61 @@ public class OpenAIService {
     @Value("${openai.api.key}")
     private String apiKey;
 
-    private final String OPENAI_API_URL = "https://api.openai.com/v1/completions";
-    private final String OPENAI_IMAGE_API_URL = "https://api.openai.com/v1/images";
-
     public String createStory(String prompt) {
+        String url = "https://api.openai.com/v1/chat/completions";
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + apiKey);
-        headers.set("Content-Type", "application/json");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("model", "text-davinci-003");
-        body.put("prompt", prompt);
-        body.put("max_tokens", 250);
+        Map<String, Object> requestBody = Map.of(
+                "model", "gpt-3.5-turbo",
+                "messages", Collections.singletonList(
+                        Map.of(
+                                "role", "user",
+                                "content", prompt
+                        )
+                )
+        );
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<Map> response = restTemplate.exchange(OPENAI_API_URL, HttpMethod.POST, entity, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
 
-        Map<String, Object> responseBody = response.getBody();
-        if (responseBody != null && responseBody.containsKey("choices")) {
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            Map<String, Object> responseBody = response.getBody();
             List<Map<String, Object>> choices = (List<Map<String, Object>>) responseBody.get("choices");
-            if (choices != null && !choices.isEmpty()) {
-                return (String) choices.get(0).get("text");
-            }
+            return choices.get(0).get("message").toString();
+        } else {
+            throw new RuntimeException("Failed to generate story: " + response.getStatusCode());
         }
-        return null;
     }
 
-    public byte[] createImage(String prompt) {
+    public String createImage(String prompt) {
+        String url = "https://api.openai.com/v1/images/generations";
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + apiKey);
-        headers.set("Content-Type", "application/json");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("prompt", prompt);
-        body.put("n", 1);
-        body.put("size", "1024x1024");
+        Map<String, Object> requestBody = Map.of(
+                "prompt", prompt,
+                "n", 1,
+                "size", "1024x1024"
+        );
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<Map> response = restTemplate.exchange(OPENAI_IMAGE_API_URL, HttpMethod.POST, entity, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
 
-        Map<String, Object> responseBody = response.getBody();
-        if (responseBody != null && responseBody.containsKey("data")) {
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            Map<String, Object> responseBody = response.getBody();
             List<Map<String, String>> data = (List<Map<String, String>>) responseBody.get("data");
-            if (data != null && !data.isEmpty()) {
-                String imageBase64 = data.get(0).get("b64_json");
-                return Base64.getDecoder().decode(imageBase64);
-            }
+            return data.get(0).get("url");
+        } else {
+            throw new RuntimeException("Failed to generate image: " + response.getStatusCode());
         }
-        return null;
     }
 }
