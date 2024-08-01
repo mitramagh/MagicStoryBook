@@ -1,17 +1,17 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Home</title>
-</head>
-<body>
-<h1>Welcome to Magic Story Book</h1>
-<div th:if="${name}">
-    <p>Hello, <span th:text="${name}">User</span>!</p>
-    <a th:href="@{/logout}">Logout</a>
-</div>
-<div th:if="${name == null}">
-    <a th:href="@{/oauth2/authorization/google}">Login with Google</a>
-    <a th:href="@{/oauth2/authorization/facebook}">Login with Facebook</a>
-</div>
-</body>
-</html>
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <title>Home</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>Welcome to Magic Story Book</h1>-->
+<!--<div th:if="${name}">-->
+<!--    <p>Hello, <span th:text="${name}">User</span>!</p>-->
+<!--    <a th:href="@{/logout}">Logout</a>-->
+<!--</div>-->
+<!--<div th:if="${name == null}">-->
+<!--    <a th:href="@{/oauth2/authorization/google}">Login with Google</a>-->
+<!--    <a th:href="@{/oauth2/authorization/facebook}">Login with Facebook</a>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
