@@ -38,6 +38,15 @@ public class SecurityConfig {
                                 userInfoEndpoint.userService( oauth2UserService());
                             });
                 })
+                .logout(logout -> {
+                    logger.info("Configuring logout");
+                    logout
+                            .logoutUrl("/logout")
+                            .logoutSuccessUrl("/signup")
+                            .invalidateHttpSession(true)
+                            .deleteCookies("JSESSIONID")
+                            .permitAll();
+                })
                 .csrf(csrf -> {
                     logger.info("Disabling CSRF protection for API endpoints");
                     csrf.ignoringRequestMatchers("/api/**");
