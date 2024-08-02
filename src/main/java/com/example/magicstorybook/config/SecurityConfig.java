@@ -25,8 +25,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> {
                     logger.info("Configuring authorization requests");
                     authorizeRequests
-                            .requestMatchers("/", "/error", "/webjars/**", "/signup").permitAll()
-                            .requestMatchers("/api/**").authenticated()  // Secure API endpoints
+                            .requestMatchers("/", "/error", "/webjars/**", "/signup", "/api/user").permitAll()
+                            .requestMatchers("/api/user/**", "/api/stories/**").authenticated()  // Secure API endpoints
                             .anyRequest().authenticated();
                 })
                 .oauth2Login(oauth2Login -> {
