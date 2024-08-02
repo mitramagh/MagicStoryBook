@@ -50,4 +50,10 @@ public class RegisterController {
         userRepository.save(newUser);
         return ResponseEntity.status(201).body("User registered successfully"); // Created
     }
+
+    //add logout endpoint
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok().body("Logged out successfully");
+    }
 }
