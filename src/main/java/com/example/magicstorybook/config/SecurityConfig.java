@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .oauth2Login(oauth2Login -> {
                     logger.info("Configuring OAuth2 login");
                     oauth2Login
-                            .defaultSuccessUrl("http://localhost:5173/", true)
+                            .defaultSuccessUrl("/", true)
                             .userInfoEndpoint(userInfoEndpoint -> {
                                 logger.info("Configuring user info endpoint");
                                 userInfoEndpoint.userService( oauth2UserService());
