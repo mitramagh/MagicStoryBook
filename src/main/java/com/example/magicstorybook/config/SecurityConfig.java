@@ -26,13 +26,13 @@ public class SecurityConfig {
                     logger.info("Configuring authorization requests");
                     authorizeRequests
                             .requestMatchers("/", "/error", "/webjars/**", "/signup", "/api/user").permitAll()
-                            .requestMatchers("/api/user/**", "/api/stories/**").authenticated()  // Secure API endpoints
+                            .requestMatchers( "/api/user/**","/api//user/stories/**").authenticated()  // Secure API endpoints
                             .anyRequest().authenticated();
                 })
                 .oauth2Login(oauth2Login -> {
                     logger.info("Configuring OAuth2 login");
                     oauth2Login
-                            .defaultSuccessUrl("/", true)
+                            .defaultSuccessUrl("http://localhost:5173/", true)
                             .userInfoEndpoint(userInfoEndpoint -> {
                                 logger.info("Configuring user info endpoint");
                                 userInfoEndpoint.userService( oauth2UserService());
