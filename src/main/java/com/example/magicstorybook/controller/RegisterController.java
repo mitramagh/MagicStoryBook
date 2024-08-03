@@ -3,10 +3,14 @@ package com.example.magicstorybook.controller;
 import com.example.magicstorybook.model.UserDTO;
 import com.example.magicstorybook.model.User;
 import com.example.magicstorybook.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -53,7 +57,10 @@ public class RegisterController {
 
     //add logout endpoint
     @GetMapping("/logout")
-    public ResponseEntity<?> logout() {
-        return ResponseEntity.ok().body("Logged out successfully");
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        if (authentication != null) {
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+        }
+        return ResponseEntity.ok().body("{\"message\": \"Logged out successfully\"}");
     }
 }

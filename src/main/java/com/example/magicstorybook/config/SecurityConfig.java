@@ -25,14 +25,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> {
                     logger.info("Configuring authorization requests");
                     authorizeRequests
-                            .requestMatchers("/", "/error", "/webjars/**", "/signup", "/api/user").permitAll()
-                            .requestMatchers( "/api/user/**","/api//user/stories/**").authenticated()  // Secure API endpoints
+                            .requestMatchers("/", "/error", "/webjars/**", "/signup", "/api/user", "/api/user/**", "/api/user/logout").permitAll()
+                            .requestMatchers( "/api//user/stories/**").authenticated()  // Secure API endpoints
                             .anyRequest().authenticated();
                 })
                 .oauth2Login(oauth2Login -> {
                     logger.info("Configuring OAuth2 login");
                     oauth2Login
-                            .defaultSuccessUrl("/", true)
+                            .defaultSuccessUrl("http://localhost:5175/", true)
                             .userInfoEndpoint(userInfoEndpoint -> {
                                 logger.info("Configuring user info endpoint");
                                 userInfoEndpoint.userService( oauth2UserService());
@@ -41,8 +41,8 @@ public class SecurityConfig {
                 .logout(logout -> {
                     logger.info("Configuring logout");
                     logout
-                            .logoutUrl("/logout")
-                            .logoutSuccessUrl("/signup")
+                            .logoutUrl("/api/user/logout")
+                            .logoutSuccessUrl("http://localhost:5175/signup")
                             .invalidateHttpSession(true)
                             .deleteCookies("JSESSIONID")
                             .permitAll();
