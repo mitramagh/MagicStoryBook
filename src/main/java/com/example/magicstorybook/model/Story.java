@@ -20,6 +20,7 @@ public class Story {
     private String genre;
     private String setting;
     private String title;
+    private String specialMessage;
 
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -57,6 +58,7 @@ public class Story {
         this.ageRange = ageRange;
         this.wordRange = wordRange;
         this.creationDate = LocalDateTime.now();
+        this.specialMessage = specialMessage;
     }
 
     // Getters and setters...
@@ -82,6 +84,14 @@ public class Story {
 
     public void setGenre(String genre) {
         this.genre = genre;
+    }
+
+    public String getSpecialMessage() {
+        return specialMessage;
+    }
+
+    public void setSpecialMessage(String specialMessage) {
+        this.specialMessage = specialMessage;
     }
 
     public String getSetting() {
