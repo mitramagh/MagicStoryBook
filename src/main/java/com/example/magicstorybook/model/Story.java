@@ -47,7 +47,7 @@ public class Story {
     public Story() {
     }
 
-    public Story(User user, String genre, String setting, List<String> characters, String title, String content, String image, String ageRange, String wordRange) {
+    public Story(User user, String genre, String setting, List<String> characters, String title, String content, String image, String ageRange, String wordRange, String specialMessage) {
         this.user = user;
         this.genre = genre;
         this.setting = setting;

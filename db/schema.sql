@@ -11,6 +11,7 @@ CREATE TABLE stories (
     genre VARCHAR(50),
     setting VARCHAR(50),
     title VARCHAR(100),
+    specialMessage VARCHAR(255),
     content TEXT,
     image Text,
     age_range VARCHAR(10),

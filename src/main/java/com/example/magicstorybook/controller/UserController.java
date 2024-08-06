@@ -4,11 +4,15 @@ import com.example.magicstorybook.model.Story;
 import com.example.magicstorybook.model.User;
 import com.example.magicstorybook.repository.StoryRepository;
 import com.example.magicstorybook.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -109,6 +113,19 @@ public class UserController {
             return ResponseEntity.ok("User deleted successfully");
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        if (authentication != null) {
+            logger.info("Logging out user: " + authentication.getName());
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+            return ResponseEntity.ok().body("{\"message\": \"Logged out successfully\"}");
+        } else {
+            logger.warning("No user is authenticated.");
+            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body("{\"message\": \"No user is authenticated\"}");
         }
     }
 

@@ -7,4 +7,4 @@ COPY --from=build /target/magicstorybook-0.0.1-SNAPSHOT.jar magicstorybook.jar
 
 
 EXPOSE 8081
-ENTRYPOINT ["java","-jar","/magicstorybook.jar"]
+ENTRYPOINT ["java","-jar","magicstorybook.jar"]
