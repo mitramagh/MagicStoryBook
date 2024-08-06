@@ -64,7 +64,8 @@ public class StoryController {
             }
         }
 
-        String storyPrompt = String.format("Write a %s-word story for a %s-year-old child. The genre is %s. The story should include the characters: %s. The setting is %s. Title: %s. Special message: %s",
+
+        String storyPrompt = String.format("Write a %s-word story for a %s-year-old child. The genre is %s. The story should include the characters: %s. The setting is %s. Title: %s. Special message: %s.",
                 wordRange, ageRange, genre, String.join(", ", characters), setting, title, specialMessage);
 
         String imagePrompt = String.format("Create an illustration for a story with the genre %s, set in %s, featuring characters %s.",
@@ -74,8 +75,7 @@ public class StoryController {
             String storyContent = openAIService.createStory(storyPrompt);
             String imageUrl = openAIService.createImage(imagePrompt);
 
-            Story newStory = new Story(user, genre, setting, characters, title, storyContent, imageUrl, ageRange, wordRange);
-            newStory.setSpecialMessage(specialMessage);
+            Story newStory = new Story(user, genre, setting, characters, title, storyContent, imageUrl, ageRange, wordRange, specialMessage);
             storyRepository.save(newStory);
 
             return ResponseEntity.ok(Map.of("content", storyContent, "image", imageUrl));
