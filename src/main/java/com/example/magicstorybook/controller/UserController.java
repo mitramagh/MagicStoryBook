@@ -117,17 +117,4 @@ public class UserController {
     }
 
 
-    @GetMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        if (authentication != null) {
-            logger.info("Logging out user: " + authentication.getName());
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
-            return ResponseEntity.ok().body("{\"message\": \"Logged out successfully\"}");
-        } else {
-            logger.warning("No user is authenticated.");
-            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body("{\"message\": \"No user is authenticated\"}");
-        }
-    }
-
-
 }
