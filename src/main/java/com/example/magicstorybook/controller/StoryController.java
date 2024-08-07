@@ -62,6 +62,10 @@ public class StoryController {
             String storyContent = openAIService.createStory(storyPrompt);
             String imageUrl = openAIService.createImage(imagePrompt);
 
+            // Log the storyContent and imageUrl
+            System.out.println("Generated Story Content: " + storyContent);
+            System.out.println("Generated Image URL: " + imageUrl);
+
             // Create a new story and associate it with the userId
             Story newStory = new Story(userId, genre, setting, characters, title, storyContent, imageUrl, ageRange, wordRange, specialMessage);
             storyRepository.save(newStory);
