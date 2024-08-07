@@ -30,40 +30,26 @@ public class StoryController {
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, String>> createStory(
-            @AuthenticationPrincipal OAuth2User oAuth2User,
-            @RequestParam String genre,
-            @RequestParam String setting,
-            @RequestParam List<String> characters,
-            @RequestParam String title,
-            @RequestParam String specialMessage,
-            @RequestParam String ageRange,
-            @RequestParam String wordRange) {
+            @RequestBody Map<String, Object> requestBody) {
 
-        if (oAuth2User == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "User is not authenticated"));
-        }
+        String genre = (String) requestBody.get("genre");
+        String setting = (String) requestBody.get("setting");
+        List<String> characters = (List<String>) requestBody.get("characters");
+        String title = (String) requestBody.get("title");
+        String specialMessage = (String) requestBody.get("specialMessage");
+        String ageRange = (String) requestBody.get("ageRange");
+        String wordRange = (String) requestBody.get("wordRange");
+        Long userId = ((Number) requestBody.get("userId")).longValue(); // Convert to Long
 
-        if (characters.size() < 1 || characters.size() > 3) {
+        if (characters == null || characters.size() < 1 || characters.size() > 3) {
             return ResponseEntity.badRequest().body(Map.of("error", "The number of characters must be between 1 and 3."));
         }
 
-        String email = oAuth2User.getAttribute("email");
-
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
         }
         User user = userOptional.get();
-
-        List<Story> existingStories = storyRepository.findByUserAndGenreAndSettingAndTitleAndAgeRangeAndWordRange(
-                user, genre, setting, title, ageRange, wordRange);
-
-        for (Story existingStory : existingStories) {
-            if (existingStory.getCharacters().containsAll(characters) && characters.containsAll(existingStory.getCharacters())) {
-                return ResponseEntity.status(409).body(Map.of("error", "A story with the same parameters and characters already exists. Please make another selection."));
-            }
-        }
-
 
         String storyPrompt = String.format("Write a %s-word story for a %s-year-old child. The genre is %s. The story should include the characters: %s. The setting is %s. Title: %s. Special message: %s.",
                 wordRange, ageRange, genre, String.join(", ", characters), setting, title, specialMessage);
@@ -75,14 +61,18 @@ public class StoryController {
             String storyContent = openAIService.createStory(storyPrompt);
             String imageUrl = openAIService.createImage(imagePrompt);
 
-            Story newStory = new Story(user, genre, setting, characters, title, storyContent, imageUrl, ageRange, wordRange, specialMessage);
+            // Create a new story and associate it with the user
+            Story newStory = new Story(user.getId(), genre, setting, characters, title, storyContent, imageUrl, ageRange, wordRange, specialMessage);
             storyRepository.save(newStory);
 
-            return ResponseEntity.ok(Map.of("content", storyContent, "image", imageUrl));
+            String content = newStory.getContent();
+            return ResponseEntity.ok(Map.of("content", content, "image", imageUrl));
+
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Error generating story or image: " + e.getMessage()));
         }
     }
+
 
     @GetMapping("/my-stories")
     public ResponseEntity<List<Story>> getMyStories(@AuthenticationPrincipal OAuth2User oAuth2User) {

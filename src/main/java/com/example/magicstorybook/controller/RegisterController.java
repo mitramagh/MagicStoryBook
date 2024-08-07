@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -28,15 +29,22 @@ public class RegisterController {
 
             Optional<User> existingUser = userRepository.findByEmail(email);
             if (existingUser.isPresent()) {
-                return ResponseEntity.status(409).body("User already registered"); // Conflict, user already exists
+                return ResponseEntity.ok(createResponse(existingUser.get(), authentication));
             }
 
             User newUser = new User(firstName, lastName, email);
             userRepository.save(newUser);
-            return ResponseEntity.status(201).body("User registered successfully"); // Created
+            return ResponseEntity.status(201).body(createResponse(newUser, authentication));
         }
 
         return ResponseEntity.status(401).body("Not authenticated with OAuth2"); // Unauthorized
     }
 
+    private Map<String, Object> createResponse(User user, OAuth2AuthenticationToken authentication) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "User logged in successfully: " + user.getFirstName());
+        response.put("token", authentication.getAuthorizedClientRegistrationId());
+        response.put("user", user);
+        return response;
+    }
 }
