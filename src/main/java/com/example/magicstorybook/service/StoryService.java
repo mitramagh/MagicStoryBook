@@ -16,8 +16,7 @@ public class StoryService {
     private StoryRepository storyRepository;
 
     public List<Story> getStoriesByUser(User user) {
-        return storyRepository.findByUser(user);
-    }
+        return storyRepository.findByUserId(user.getId());}
 
     public Optional<Story> getStoryById(Long id) {
         return storyRepository.findById(id);

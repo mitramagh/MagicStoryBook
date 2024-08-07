@@ -6,8 +6,8 @@ import com.example.magicstorybook.model.Story;
 import java.util.List;
 
 public interface StoryRepository extends JpaRepository<Story, Long> {
-    List<Story> findByUser(User user);
+    List<Story> findByUserId(Long userId);
 
-    List<Story> findByUserAndGenreAndSettingAndTitleAndAgeRangeAndWordRange(
-            User user, String genre, String setting, String title, String ageRange, String wordRange);
+    List<Story> findByUserIdAndGenreAndSettingAndTitleAndAgeRangeAndWordRange(
+            Long userId, String genre, String setting, String title, String ageRange, String wordRange);
 }
