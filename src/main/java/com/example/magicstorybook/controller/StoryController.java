@@ -62,7 +62,7 @@ public class StoryController {
             String imageUrl = openAIService.createImage(imagePrompt);
 
             // Create a new story and associate it with the user
-            Story newStory = new Story(user.getId(), genre, setting, characters, title, storyContent, imageUrl, ageRange, wordRange, specialMessage);
+            Story newStory = new Story(user, genre, setting, characters, title, storyContent, imageUrl, ageRange, wordRange, specialMessage);
             storyRepository.save(newStory);
 
             String content = newStory.getContent();
