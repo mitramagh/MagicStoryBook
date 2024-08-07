@@ -13,9 +13,8 @@ public class Story {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     private String genre;
     private String setting;
@@ -47,8 +46,8 @@ public class Story {
     public Story() {
     }
 
-    public Story(User user, String genre, String setting, List<String> characters, String title, String content, String image, String ageRange, String wordRange, String specialMessage) {
-        this.user = user;
+    public Story(Long userId, String genre, String setting, List<String> characters, String title, String content, String image, String ageRange, String wordRange, String specialMessage) {
+        this.userId = userId;
         this.genre = genre;
         this.setting = setting;
         this.characters = characters;
@@ -70,12 +69,12 @@ public class Story {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getGenre() {

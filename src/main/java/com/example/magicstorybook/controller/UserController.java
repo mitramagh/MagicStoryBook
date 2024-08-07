@@ -120,7 +120,7 @@ public class UserController {
                     logger.warning("User not found for email: " + email);
                     return new RuntimeException("User not found");
                 });
-        List<Story> stories = storyRepository.findByUser(user);
+        List<Story> stories = storyRepository.findByUserId(user.getId());
 
         // Extracting and logging the token
         OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(

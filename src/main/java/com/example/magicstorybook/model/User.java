@@ -16,8 +16,8 @@ public class User {
     private String lastName;
     private String email;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Story> stories;
 
     // Default constructor
