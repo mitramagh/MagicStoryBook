@@ -73,12 +73,22 @@ public class StoryController {
             return ResponseEntity.status(500).body(Map.of("error", "Error generating story or image: " + e.getMessage()));
         }
     }
-
-    @GetMapping("/my-stories")
-    public ResponseEntity<List<Story>> getMyStories(@RequestParam Long userId) {
-        List<Story> stories = storyRepository.findByUserId(userId);
+//get all stories
+    @GetMapping
+    public ResponseEntity<List<Story>> getAllStories() {
+        List<Story> stories = storyRepository.findAll();
         return ResponseEntity.ok(stories);
     }
+
+
+    //get one story
+    @GetMapping("/{id}")
+    public ResponseEntity<Story> getStoryById(@PathVariable Long id) {
+        Optional<Story> story = storyRepository.findById(id);
+        return story.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteStory(@PathVariable Long id) {

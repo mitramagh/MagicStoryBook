@@ -107,31 +107,39 @@ public class UserController {
         }
     }
 
-    @GetMapping("/stories")
-    public ResponseEntity<Map<String, Object>> getStories(@AuthenticationPrincipal OAuth2User oAuth2User, OAuth2AuthenticationToken authentication) {
-        if (oAuth2User == null) {
-            logger.severe("OAuth2User is null");
-            return ResponseEntity.status(401).body(null); // Unauthorized
-        }
-        String email = oAuth2User.getAttribute("email");
-        logger.info("Fetching stories for user email: " + email);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    logger.warning("User not found for email: " + email);
-                    return new RuntimeException("User not found");
-                });
-        List<Story> stories = storyRepository.findByUserId(user.getId());
+//    @GetMapping("/stories")
+//    public ResponseEntity<Map<String, Object>> getStories(@AuthenticationPrincipal OAuth2User oAuth2User, OAuth2AuthenticationToken authentication) {
+//        if (oAuth2User == null) {
+//            logger.severe("OAuth2User is null");
+//            return ResponseEntity.status(401).body(null); // Unauthorized
+//        }
+//        String email = oAuth2User.getAttribute("email");
+//        logger.info("Fetching stories for user email: " + email);
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> {
+//                    logger.warning("User not found for email: " + email);
+//                    return new RuntimeException("User not found");
+//                });
+//        List<Story> stories = storyRepository.findByUserId(user.getId());
+//
+//        // Extracting and logging the token
+//        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+//                authentication.getAuthorizedClientRegistrationId(), authentication.getName());
+//        String token = authorizedClient.getAccessToken().getTokenValue();
+//        logger.info("Token: " + token);
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("stories", stories);
+//        response.put("token", token);
+//        return ResponseEntity.ok(response);
+//    }
 
-        // Extracting and logging the token
-        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
-                authentication.getAuthorizedClientRegistrationId(), authentication.getName());
-        String token = authorizedClient.getAccessToken().getTokenValue();
-        logger.info("Token: " + token);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("stories", stories);
-        response.put("token", token);
-        return ResponseEntity.ok(response);
+    //get stories for a user
+    @GetMapping("/{id}/stories")
+    public ResponseEntity<List<Story>> getStoriesByUserId(@PathVariable Long id) {
+        logger.info("Fetching stories for user with ID: " + id);
+        List<Story> stories = storyRepository.findByUserId(id);
+        return ResponseEntity.ok(stories);
     }
 
     @Transactional
