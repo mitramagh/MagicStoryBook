@@ -26,13 +26,14 @@ public class RegisterController {
             String email = oAuth2User.getAttribute("email");
             String firstName = oAuth2User.getAttribute("given_name");
             String lastName = oAuth2User.getAttribute("family_name");
+            String profilePicture = oAuth2User.getAttribute("picture");
 
             Optional<User> existingUser = userRepository.findByEmail(email);
             if (existingUser.isPresent()) {
                 return ResponseEntity.ok(createResponse(existingUser.get(), authentication));
             }
 
-            User newUser = new User(firstName, lastName, email);
+            User newUser = new User(firstName, lastName, email, profilePicture);
             userRepository.save(newUser);
             return ResponseEntity.status(201).body(createResponse(newUser, authentication));
         }

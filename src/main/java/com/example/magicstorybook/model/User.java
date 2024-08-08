@@ -15,7 +15,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
-
+    private String profilePicture;
 
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Story> stories;
@@ -25,10 +25,11 @@ public class User {
     }
 
     // Constructor with parameters
-    public User(String firstName, String lastName, String email) {
+    public User(String firstName, String lastName, String email, String profilePicture) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.profilePicture = profilePicture;
     }
 
     // Getters and setters
@@ -70,5 +71,12 @@ public class User {
 
     public void setStories(List<Story> stories) {
         this.stories = stories;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
