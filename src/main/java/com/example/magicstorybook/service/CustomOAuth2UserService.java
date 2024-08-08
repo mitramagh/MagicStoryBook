@@ -41,14 +41,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String email = oAuth2User.getAttribute("email");
         String firstName = oAuth2User.getAttribute("given_name");
         String lastName = oAuth2User.getAttribute("family_name");
+        String profilePicture = oAuth2User.getAttribute("picture");
 
         logger.debug("Extracted email: {}", email);
         logger.debug("Extracted first name: {}", firstName);
         logger.debug("Extracted last name: {}", lastName);
+        logger.debug("Extracted profile picture: {}", profilePicture);
 
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
-                    User newUser = new User(firstName, lastName, email);
+                    User newUser = new User(firstName, lastName, email, profilePicture);
                     logger.debug("User not found, creating new user: {}", newUser);
                     return newUser;
                 });
@@ -56,6 +58,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // Update user information
         user.setFirstName(firstName);
         user.setLastName(lastName);
+        user.setProfilePicture(profilePicture);
         User savedUser = userRepository.save(user);
         logger.debug("User after save: {}", savedUser);
 
@@ -67,13 +70,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String email = oAuth2User.getAttribute("email");
         String firstName = oAuth2User.getAttribute("given_name");
         String lastName = oAuth2User.getAttribute("family_name");
+        String profilePicture = oAuth2User.getAttribute("picture");
 
         Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
             return existingUser.get();
         }
 
-        User newUser = new User(firstName, lastName, email);
+        User newUser = new User(firstName, lastName, email, profilePicture);
         userRepository.save(newUser);
         return newUser;
     }
