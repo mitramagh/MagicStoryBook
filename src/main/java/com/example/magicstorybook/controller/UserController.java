@@ -98,6 +98,7 @@ public class UserController {
             User updatedUser = existingUser.get();
             updatedUser.setFirstName(user.getFirstName());
             updatedUser.setLastName(user.getLastName());
+            updatedUser.setProfilePicture(user.getProfilePicture());
             userRepository.save(updatedUser);
             logger.info("User updated successfully: " + updatedUser);
             return ResponseEntity.ok(updatedUser);
