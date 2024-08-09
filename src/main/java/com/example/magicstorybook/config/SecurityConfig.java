@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .oauth2Login(oauth2Login -> {
                     logger.info("Configuring OAuth2 login");
                     oauth2Login
-                            .defaultSuccessUrl("http://localhost:5175/", true)
+                            .defaultSuccessUrl("https://magic-story-book-ui-fm3a.onrender.com/", true)
                             .userInfoEndpoint(userInfoEndpoint -> {
                                 logger.info("Configuring user info endpoint");
                                 userInfoEndpoint.userService( oauth2UserService());
@@ -42,7 +42,7 @@ public class SecurityConfig {
                     logger.info("Configuring logout");
                     logout
                             .logoutUrl("/api/logout")
-                            .logoutSuccessUrl("http://localhost:5175/signup")
+                            .logoutSuccessUrl("https://magic-story-book-ui-fm3a.onrender.com/signup")
                             .invalidateHttpSession(true)
                             .deleteCookies("JSESSIONID")
                             .permitAll();
