@@ -44,7 +44,16 @@ public class RegisterController {
     private Map<String, Object> createResponse(User user, OAuth2AuthenticationToken authentication) {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "User logged in successfully: " + user.getFirstName());
-        response.put("token", authentication.getAuthorizedClientRegistrationId());
+
+        // Retrieve the OAuth2 access token or ID token
+        String token = authentication.getPrincipal().getAttribute("sub"); // Assuming you used the token before
+
+        if (token == null) {
+            // If not found, fall back to the access token if available
+            token = (String) authentication.getPrincipal().getAttributes().get("access_token");
+        }
+
+        response.put("token", token); // Return the token
         response.put("user", user);
         return response;
     }
