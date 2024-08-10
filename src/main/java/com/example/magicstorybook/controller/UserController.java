@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+@CrossOrigin(origins = "https://magic-story-book-ui-fm3a.onrender.com")
 @RestController
 @RequestMapping("/api/user")
 public class UserController {

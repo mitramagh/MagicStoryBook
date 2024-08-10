@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@CrossOrigin(origins = "https://magic-story-book-ui-fm3a.onrender.com")
 @RestController
 @RequestMapping("/signup")
 public class RegisterController {
