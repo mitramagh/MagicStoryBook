@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -24,8 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static java.lang.String.valueOf;
-
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -33,6 +33,8 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired
     private StoryRepository storyRepository;
+    @Autowired
+    private OAuth2AuthorizedClientService authorizedClientService;
     private static final Logger logger = Logger.getLogger(UserController.class.getName());
 
     @Transactional
@@ -52,7 +54,9 @@ public class UserController {
         }
 
         // Extracting and logging the token
-        String token = authentication.getAuthorizedClientRegistrationId(); // Replace with actual token extraction method
+        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                authentication.getAuthorizedClientRegistrationId(), authentication.getName());
+        String token = authorizedClient.getAccessToken().getTokenValue();
         logger.info("Token: " + token);
 
         return user.map(u -> {
@@ -94,6 +98,7 @@ public class UserController {
             User updatedUser = existingUser.get();
             updatedUser.setFirstName(user.getFirstName());
             updatedUser.setLastName(user.getLastName());
+            updatedUser.setProfilePicture(user.getProfilePicture());
             userRepository.save(updatedUser);
             logger.info("User updated successfully: " + updatedUser);
             return ResponseEntity.ok(updatedUser);
@@ -103,29 +108,39 @@ public class UserController {
         }
     }
 
-    @GetMapping("/stories")
-    public ResponseEntity<Map<String, Object>> getStories(@AuthenticationPrincipal OAuth2User oAuth2User, OAuth2AuthenticationToken authentication) {
-        if (oAuth2User == null) {
-            logger.severe("OAuth2User is null");
-            return ResponseEntity.status(401).body(null); // Unauthorized
-        }
-        String email = oAuth2User.getAttribute("email");
-        logger.info("Fetching stories for user email: " + email);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    logger.warning("User not found for email: " + email);
-                    return new RuntimeException("User not found");
-                });
-        List<Story> stories = storyRepository.findByUserId(user.getId());
+//    @GetMapping("/stories")
+//    public ResponseEntity<Map<String, Object>> getStories(@AuthenticationPrincipal OAuth2User oAuth2User, OAuth2AuthenticationToken authentication) {
+//        if (oAuth2User == null) {
+//            logger.severe("OAuth2User is null");
+//            return ResponseEntity.status(401).body(null); // Unauthorized
+//        }
+//        String email = oAuth2User.getAttribute("email");
+//        logger.info("Fetching stories for user email: " + email);
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> {
+//                    logger.warning("User not found for email: " + email);
+//                    return new RuntimeException("User not found");
+//                });
+//        List<Story> stories = storyRepository.findByUserId(user.getId());
+//
+//        // Extracting and logging the token
+//        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+//                authentication.getAuthorizedClientRegistrationId(), authentication.getName());
+//        String token = authorizedClient.getAccessToken().getTokenValue();
+//        logger.info("Token: " + token);
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("stories", stories);
+//        response.put("token", token);
+//        return ResponseEntity.ok(response);
+//    }
 
-        // Extracting and logging the token
-        String token = authentication.getAuthorizedClientRegistrationId(); // Replace with actual token extraction method
-        logger.info("Token: " + token);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("stories", stories);
-        response.put("token", token);
-        return ResponseEntity.ok(response);
+    //get stories for a user
+    @GetMapping("/{id}/stories")
+    public ResponseEntity<List<Story>> getStoriesByUserId(@PathVariable Long id) {
+        logger.info("Fetching stories for user with ID: " + id);
+        List<Story> stories = storyRepository.findByUserId(id);
+        return ResponseEntity.ok(stories);
     }
 
     @Transactional
